@@ -11,7 +11,7 @@ import (
 	// gi "my_graphics/google_icons"
 )
 
-const WIDTH, HEIGHT int32 = 800, 50
+const WIDTH, HEIGHT uint32 = 800, 50
 
 type Button struct {
 	sdl.Rect
@@ -19,28 +19,39 @@ type Button struct {
 	imgPath string
 }
 
-func (butt *Button) IsButtonClicked(x, y int32) bool {
-	return butt.HasIntersection(&sdl.Rect{X: x, Y: y, W: 1, H: 1})
+type BarState struct {
+	/* TODO */
+	hoveredItem interface{}
+}
+
+func FindIntersectedButton(rect *sdl.Rect) *Button {
+	for i := range BUTTONS {
+		butt := &BUTTONS[i]
+		if butt.HasIntersection(rect) {
+			return butt
+		}
+	}
+	return nil
 }
 
 var BUTTONS []Button = []Button{
 	{
-		sdl.Rect{X: 0, Y: 0, W: 32, H: 32},
-		func() {
+		Rect: sdl.Rect{X: 0, Y: 0, W: 32, H: 32},
+		action: func() {
 			fmt.Println("First Button Clicked!")
 		},
-		"./google_icons/star.png",
+		imgPath: "./google_icons/star.png",
 	},
 	{
-		sdl.Rect{X: 0, Y: 0, W: 32, H: 32},
-		func() {
+		Rect: sdl.Rect{X: 0, Y: 0, W: 32, H: 32},
+		action: func() {
 			fmt.Println("Second Button Clicked!")
 		},
-		"./google_icons/star.png",
+		imgPath: "./google_icons/star.png",
 	},
 	{
-		sdl.Rect{X: 0, Y: 0, W: 32, H: 32},
-		func() {
+		Rect: sdl.Rect{X: 0, Y: 0, W: 32, H: 32},
+		action: func() {
 			command := exec.Command("kitty", "-e", "ranger")
 			/* decople child process */
 			command.SysProcAttr = &syscall.SysProcAttr{
@@ -53,7 +64,7 @@ var BUTTONS []Button = []Button{
 				log.Println("Command Successfully executed.")
 			}
 		},
-		"./google_icons/apps.png",
+		imgPath: "./google_icons/apps.png",
 	},
 }
 
@@ -70,11 +81,15 @@ func SetButtonsCenteredPosition(surface *sdl.Surface) {
 	}
 }
 
+/* TODO Draweable interface */
 func DrawButtons(surface *sdl.Surface) {
 	for i := range BUTTONS {
 		button := &BUTTONS[i]
 		rw := sdl.RWFromFile(button.imgPath, "r")
 		icon, err := sdlImg.LoadPNGRW(rw)
+		if button == bar.hoveredItem {
+			icon.SetAlphaMod(126)
+		}
 
 		if err != nil {
 			log.Printf("Error loading the button Image (%s)\n", err.Error())
@@ -104,10 +119,14 @@ func GetBackgroundRefreshFunction(surf *sdl.Surface, min uint8, max uint8) func(
 	}
 }
 
+var bar *BarState
+
 func main() {
-	window, err := sdl.CreateWindow("test", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
+	bar = &BarState{}
+
+	window, err := sdl.CreateShapedWindow("test", sdl.WINDOWPOS_CENTERED, sdl.WINDOWPOS_CENTERED,
 		WIDTH, HEIGHT,
-		sdl.WINDOW_SHOWN|sdl.WINDOW_SKIP_TASKBAR,
+		sdl.WINDOW_SHOWN|sdl.WINDOW_SKIP_TASKBAR|sdl.WINDOW_ALWAYS_ON_TOP|sdl.WINDOW_BORDERLESS,
 	)
 	if err != nil {
 		panic(err)
@@ -121,7 +140,6 @@ func main() {
 
 	SetButtonsCenteredPosition(surf)
 
-	refreshBackground := GetBackgroundRefreshFunction(surf, 5, 80)
 	go func() {
 		/* wating for mouse events */
 		for {
@@ -131,16 +149,22 @@ func main() {
 					continue
 				}
 
-				for _, butt := range BUTTONS {
-					if butt.IsButtonClicked(event.X, event.Y) {
-						go butt.action()
-						break
-					}
+				butt := FindIntersectedButton(&sdl.Rect{X: event.X, Y: event.Y, W: 1, H: 1})
+				if butt != nil {
+					go butt.action()
+				}
+			case *sdl.MouseMotionEvent:
+				butt := FindIntersectedButton(&sdl.Rect{X: event.X, Y: event.Y, W: 1, H: 1})
+				if butt != nil {
+					bar.hoveredItem = butt
+				} else {
+					bar.hoveredItem = nil
 				}
 			}
 		}
 	}()
 
+	refreshBackground := GetBackgroundRefreshFunction(surf, 5, 80)
 	for {
 		refreshBackground()
 		DrawButtons(surf)

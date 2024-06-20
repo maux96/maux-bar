@@ -12,13 +12,13 @@ import (
 const WIDTH, HEIGHT int32 = 800, 200
 
 type Button struct {
-	rect    sdl.Rect
+	sdl.Rect
 	action  func()
 	imgPath string
 }
 
 func (butt *Button) IsButtonClicked(x, y int32) bool {
-	return butt.rect.HasIntersection(&sdl.Rect{X: x, Y: y, W: 1, H: 1})
+	return butt.HasIntersection(&sdl.Rect{X: x, Y: y, W: 1, H: 1})
 }
 
 var BUTTONS []Button = []Button{
@@ -49,10 +49,10 @@ func SetButtonsCenteredPosition(surface *sdl.Surface) {
 		wW, wH := surface.W, surface.H
 		totalButtons := int32(len(BUTTONS))
 
-		buttX := int32(int32(i+1)*(wW/(totalButtons+1)) - button.rect.W/2)
-		buttY := int32(wH/2 - button.rect.H/2)
-		button.rect.X = buttX
-		button.rect.Y = buttY
+		buttX := int32(int32(i+1)*(wW/(totalButtons+1)) - button.W/2)
+		buttY := int32(wH/2 - button.H/2)
+		button.X = buttX
+		button.Y = buttY
 	}
 }
 
@@ -67,10 +67,10 @@ func DrawButtons(surface *sdl.Surface) {
 		}
 
 		icon.BlitScaled(nil, surface, &sdl.Rect{
-			X: button.rect.X,
-			Y: button.rect.Y,
-			W: int32(button.rect.W),
-			H: int32(button.rect.H),
+			X: button.X,
+			Y: button.Y,
+			W: int32(button.W),
+			H: int32(button.H),
 		})
 	}
 }

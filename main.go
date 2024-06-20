@@ -3,13 +3,15 @@ package main
 import (
 	"fmt"
 	"log"
+	"os/exec"
+	"syscall"
 
 	sdlImg "github.com/veandco/go-sdl2/img"
 	sdl "github.com/veandco/go-sdl2/sdl"
 	// gi "my_graphics/google_icons"
 )
 
-const WIDTH, HEIGHT int32 = 800, 200
+const WIDTH, HEIGHT int32 = 800, 50
 
 type Button struct {
 	sdl.Rect
@@ -37,8 +39,20 @@ var BUTTONS []Button = []Button{
 		"./google_icons/star.png",
 	},
 	{
-		sdl.Rect{X: 0, Y: 0, W: 64, H: 64},
-		func() {},
+		sdl.Rect{X: 0, Y: 0, W: 32, H: 32},
+		func() {
+			command := exec.Command("kitty", "-e", "ranger")
+			/* decople child process */
+			command.SysProcAttr = &syscall.SysProcAttr{
+				Setsid: true,
+			}
+			err := command.Start()
+			if err != nil {
+				log.Println("Problem executing the command:", err.Error())
+			} else {
+				log.Println("Command Successfully executed.")
+			}
+		},
 		"./google_icons/apps.png",
 	},
 }

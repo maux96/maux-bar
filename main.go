@@ -17,15 +17,23 @@ type Button struct {
 	imgPath string
 }
 
+func (butt *Button) IsButtonClicked(x, y int32) bool {
+	return butt.rect.HasIntersection(&sdl.Rect{X: x, Y: y, W: 1, H: 1})
+}
+
 var BUTTONS []Button = []Button{
 	{
 		sdl.Rect{X: 0, Y: 0, W: 32, H: 32},
-		func() {},
+		func() {
+			fmt.Println("First Button Clicked!")
+		},
 		"./google_icons/star.png",
 	},
 	{
 		sdl.Rect{X: 0, Y: 0, W: 32, H: 32},
-		func() {},
+		func() {
+			fmt.Println("Second Button Clicked!")
+		},
 		"./google_icons/star.png",
 	},
 	{
@@ -35,8 +43,22 @@ var BUTTONS []Button = []Button{
 	},
 }
 
+func SetButtonsCenteredPosition(surface *sdl.Surface) {
+	for i := range BUTTONS[:] {
+		button := &BUTTONS[i]
+		wW, wH := surface.W, surface.H
+		totalButtons := int32(len(BUTTONS))
+
+		buttX := int32(int32(i+1)*(wW/(totalButtons+1)) - button.rect.W/2)
+		buttY := int32(wH/2 - button.rect.H/2)
+		button.rect.X = buttX
+		button.rect.Y = buttY
+	}
+}
+
 func DrawButtons(surface *sdl.Surface) {
-	for i, button := range BUTTONS {
+	for i := range BUTTONS {
+		button := &BUTTONS[i]
 		rw := sdl.RWFromFile(button.imgPath, "r")
 		icon, err := sdlImg.LoadPNGRW(rw)
 
@@ -44,12 +66,9 @@ func DrawButtons(surface *sdl.Surface) {
 			log.Printf("Error loading the button Image (%s)\n", err.Error())
 		}
 
-		wW, wH := surface.W, surface.H
-		totalButtons := int32(len(BUTTONS))
-
 		icon.BlitScaled(nil, surface, &sdl.Rect{
-			X: int32(int32(i+1)*(wW/(totalButtons+1)) - button.rect.W/2),
-			Y: int32(wH/2 - button.rect.H/2),
+			X: button.rect.X,
+			Y: button.rect.Y,
 			W: int32(button.rect.W),
 			H: int32(button.rect.H),
 		})
@@ -67,7 +86,6 @@ func GetBackgroundRefreshFunction(surf *sdl.Surface, min uint8, max uint8) func(
 			sign = 1
 		}
 		bgColor.B += uint8(sign * scale)
-		fmt.Println(bgColor)
 		surf.FillRect(nil, bgColor.Uint32())
 	}
 }
@@ -87,7 +105,28 @@ func main() {
 		panic(err)
 	}
 
+	SetButtonsCenteredPosition(surf)
+
 	refreshBackground := GetBackgroundRefreshFunction(surf, 5, 80)
+	go func() {
+		/* wating for mouse events */
+		for {
+			switch event := sdl.PollEvent().(type) {
+			case *sdl.MouseButtonEvent:
+				if event.Button != sdl.BUTTON_LEFT || event.Type != sdl.MOUSEBUTTONDOWN {
+					continue
+				}
+
+				for _, butt := range BUTTONS {
+					if butt.IsButtonClicked(event.X, event.Y) {
+						go butt.action()
+						break
+					}
+				}
+			}
+		}
+	}()
+
 	for {
 		refreshBackground()
 		DrawButtons(surf)

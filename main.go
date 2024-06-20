@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	sdlImg "github.com/veandco/go-sdl2/img"
@@ -8,7 +9,7 @@ import (
 	// gi "my_graphics/google_icons"
 )
 
-const WIDTH, HEIGHT int32 = 800, 600
+const WIDTH, HEIGHT int32 = 800, 200
 
 type Button struct {
 	rect    sdl.Rect
@@ -18,7 +19,12 @@ type Button struct {
 
 var BUTTONS []Button = []Button{
 	{
-		sdl.Rect{X: 0, Y: 0, W: 64, H: 64},
+		sdl.Rect{X: 0, Y: 0, W: 32, H: 32},
+		func() {},
+		"./google_icons/star.png",
+	},
+	{
+		sdl.Rect{X: 0, Y: 0, W: 32, H: 32},
 		func() {},
 		"./google_icons/star.png",
 	},
@@ -26,11 +32,6 @@ var BUTTONS []Button = []Button{
 		sdl.Rect{X: 0, Y: 0, W: 64, H: 64},
 		func() {},
 		"./google_icons/apps.png",
-	},
-	{
-		sdl.Rect{X: 0, Y: 0, W: 126, H: 126},
-		func() {},
-		"./google_icons/star.png",
 	},
 }
 
@@ -47,7 +48,7 @@ func DrawButtons(surface *sdl.Surface) {
 		totalButtons := int32(len(BUTTONS))
 
 		icon.BlitScaled(nil, surface, &sdl.Rect{
-			X: int32(int32(i)*(wW/totalButtons) - button.rect.W/2),
+			X: int32(int32(i+1)*(wW/(totalButtons+1)) - button.rect.W/2),
 			Y: int32(wH/2 - button.rect.H/2),
 			W: int32(button.rect.W),
 			H: int32(button.rect.H),
@@ -55,9 +56,23 @@ func DrawButtons(surface *sdl.Surface) {
 	}
 }
 
-func main() {
-	// err := gi.GetPngIcon("grade")
+func GetBackgroundRefreshFunction(surf *sdl.Surface, min uint8, max uint8) func() {
+	bgColor := sdl.Color{R: 0, G: 0, B: (min + max) / 2, A: 255}
+	scale, sign := 2, 1
+	return func() {
+		nextValue := int(bgColor.B) + sign*scale
+		if nextValue > int(max) {
+			sign = -1
+		} else if nextValue <= int(min) {
+			sign = 1
+		}
+		bgColor.B += uint8(sign * scale)
+		fmt.Println(bgColor)
+		surf.FillRect(nil, bgColor.Uint32())
+	}
+}
 
+func main() {
 	window, err := sdl.CreateWindow("test", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
 		WIDTH, HEIGHT,
 		sdl.WINDOW_SHOWN|sdl.WINDOW_SKIP_TASKBAR,
@@ -72,11 +87,9 @@ func main() {
 		panic(err)
 	}
 
-	var colorValue uint32 = 0xFF00000F
+	refreshBackground := GetBackgroundRefreshFunction(surf, 5, 80)
 	for {
-		surf.FillRect(nil, colorValue)
-		colorValue++
-
+		refreshBackground()
 		DrawButtons(surf)
 
 		window.UpdateSurface()

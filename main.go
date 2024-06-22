@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"maux_bar/bar_items"
 	"maux_bar/config_loader"
 
@@ -24,6 +23,28 @@ func FindIntersectItem(rect *sdl.Rect, items []bar_items.BarElement) bar_items.B
 }
 
 func SetItemsCentered(surface *sdl.Surface, items []bar_items.BarElement) {
+	const GAP int32 = 10
+
+	totalSpaceX := GAP*int32(len(items)) - 1
+	for _, item := range items {
+		rect := item.GetRect()
+		W, _ := rect.W, rect.H
+		totalSpaceX += W
+	}
+
+	surfW, surfH := surface.W, surface.H
+	startPosX := surfW/2 - totalSpaceX/2
+	for _, item := range items {
+		itemRect := item.GetRect()
+		buttX := startPosX
+		buttY := int32(surfH/2 - itemRect.H/2)
+
+		startPosX += itemRect.W + GAP
+		item.SetPosition(buttX, buttY)
+	}
+}
+
+func SetItemsSpaceBetween(surface *sdl.Surface, items []bar_items.BarElement) {
 	for i := range items {
 		var item bar_items.Positionable = items[i]
 		wW, wH := surface.W, surface.H
@@ -34,7 +55,6 @@ func SetItemsCentered(surface *sdl.Surface, items []bar_items.BarElement) {
 		buttY := int32(wH/2 - itemRect.H/2)
 		item.SetPosition(buttX, buttY)
 	}
-	log.Println("Items centered.")
 }
 
 func DrawItems(surface *sdl.Surface, items []bar_items.BarElement, barCtx *bar_items.BarContext) {

@@ -1,14 +1,54 @@
 {
-  "objects": [
+  "Display": "centered",
+  "Objects": [
     {
       "ObjType": "button",
-      "W": 64,
-      "H": 64
+      "W": 32,
+      "H": 32,
+      "Values": {
+        "label": "Estrellita",
+        "imgPath": "./google_icons/star.png"
+      }
     },
     {
       "ObjType": "button",
       "W": 32,
-      "H": 32 
+      "H": 32,
+      "Values": {
+        "label": "Estrellita",
+        "imgPath": "./google_icons/star.png",
+        "action": "kitty -e ranger"
+      }
+    },
+    {
+      "ObjType": "button",
+      "W": 32,
+      "H": 32,
+      "Values": {
+        "label": "Estrellita",
+        "imgPath": "./google_icons/star.png",
+        "action": "kitty -e ranger"
+      }
+    },
+    {
+      "ObjType": "button",
+      "W": 32,
+      "H": 32,
+      "Values": {
+        "label": "Estrellita",
+        "imgPath": "./google_icons/star.png",
+        "action": "kitty -e ranger"
+      }
+    },
+    {
+      "ObjType": "button",
+      "W": 32,
+      "H": 32,
+      "Values": {
+        "label": "Menu",
+        "imgPath": "./google_icons/apps.png",
+        "action": "kitty -e ranger"
+      }
     }
   ]
 }

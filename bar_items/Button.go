@@ -2,7 +2,6 @@ package bar_items
 
 import (
 	"log"
-	"maux_bar/bar_context"
 
 	sdlImg "github.com/veandco/go-sdl2/img"
 	sdl "github.com/veandco/go-sdl2/sdl"
@@ -11,10 +10,10 @@ import (
 type Button struct {
 	sdl.Rect
 	imgPath string
-	action  func()
+	action  func(ctx *BarContext)
 }
 
-func CreateButton(W, H int32, imgPath string, action func()) *Button {
+func NewButton(W, H int32, imgPath string, action func(ctx *BarContext)) *Button {
 	return &Button{
 		Rect: sdl.Rect{
 			W: W,
@@ -25,7 +24,7 @@ func CreateButton(W, H int32, imgPath string, action func()) *Button {
 	}
 }
 
-func (butt *Button) Draw(surf *sdl.Surface, bar *bar_context.BarContext) {
+func (butt *Button) Draw(surf *sdl.Surface, bar *BarContext) {
 	rw := sdl.RWFromFile(butt.imgPath, "r")
 	icon, err := sdlImg.LoadPNGRW(rw)
 	if butt == bar.HoveredItem {
@@ -52,6 +51,6 @@ func (butt *Button) GetRect() sdl.Rect {
 	return butt.Rect
 }
 
-func (butt *Button) Action() {
-	butt.action()
+func (butt *Button) Action(ctx *BarContext) {
+	butt.action(ctx)
 }

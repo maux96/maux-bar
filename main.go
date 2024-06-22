@@ -3,67 +3,29 @@ package main
 import (
 	"fmt"
 	"log"
-	"maux_bar/bar_context"
 	"maux_bar/bar_items"
 	"maux_bar/config_loader"
-	"os/exec"
-	"syscall"
 
 	sdl "github.com/veandco/go-sdl2/sdl"
-	// gi "my_graphics/google_icons"
 )
 
 const WIDTH, HEIGHT uint32 = 800, 50
 
-func FindIntersectItem[T bar_items.Positionable](rect *sdl.Rect, items []T) *T {
+func FindIntersectItem(rect *sdl.Rect, items []bar_items.BarElement) bar_items.BarElement {
 	for i := range items {
-		item := items[i]
+		var item bar_items.Positionable = items[i]
 		itemRect := item.GetRect()
 
 		if rect.HasIntersection(&itemRect) {
-			return &item
+			return items[i]
 		}
 	}
 	return nil
 }
 
-var BUTTONS = []*bar_items.Button{
-	bar_items.CreateButton(
-		32, 32,
-		"./google_icons/star.png",
-		func() {
-			fmt.Println("First bar_items.Button Clicked!")
-		},
-	),
-	bar_items.CreateButton(
-		32, 32,
-		"./google_icons/star.png",
-		func() {
-			fmt.Println("Second bar_items.Button Clicked!")
-		},
-	),
-	bar_items.CreateButton(
-		32, 32,
-		"./google_icons/apps.png",
-		func() {
-			command := exec.Command("kitty", "-e", "ranger")
-			/* decople child process */
-			command.SysProcAttr = &syscall.SysProcAttr{
-				Setsid: true,
-			}
-			err := command.Start()
-			if err != nil {
-				log.Println("Problem executing the command:", err.Error())
-			} else {
-				log.Println("Command Successfully executed.")
-			}
-		},
-	),
-}
-
-func SetItemsCentered[T bar_items.Positionable](surface *sdl.Surface, items []T) {
+func SetItemsCentered(surface *sdl.Surface, items []bar_items.BarElement) {
 	for i := range items {
-		item := items[i]
+		var item bar_items.Positionable = items[i]
 		wW, wH := surface.W, surface.H
 		totalItems := int32(len(items))
 
@@ -72,11 +34,13 @@ func SetItemsCentered[T bar_items.Positionable](surface *sdl.Surface, items []T)
 		buttY := int32(wH/2 - itemRect.H/2)
 		item.SetPosition(buttX, buttY)
 	}
+	log.Println("Items centered.")
 }
 
-func DrawItems[T bar_items.Draweable](surface *sdl.Surface, items []T, barCtx *bar_context.BarContext) {
-	for i := range BUTTONS {
-		items[i].Draw(surface, barCtx)
+func DrawItems(surface *sdl.Surface, items []bar_items.BarElement, barCtx *bar_items.BarContext) {
+	for i := range items {
+		var item bar_items.Draweable = items[i]
+		item.Draw(surface, barCtx)
 	}
 }
 
@@ -96,8 +60,9 @@ func GetBackgroundRefreshFunction(surf *sdl.Surface, min uint8, max uint8) func(
 }
 
 func main() {
-	bar := bar_context.New()
-	config_loader.PrepareBar("./testConfig.json")
+	bar := bar_items.NewBarContext()
+	config_loader.PrepareBar(bar, "./testConfig.json")
+	fmt.Println(bar)
 
 	window, err := sdl.CreateShapedWindow(
 		"test",
@@ -115,7 +80,7 @@ func main() {
 		panic(err)
 	}
 
-	SetItemsCentered(surf, BUTTONS)
+	SetItemsCentered(surf, bar.Elements)
 
 	go func() {
 		/* wating for mouse events */
@@ -125,14 +90,14 @@ func main() {
 				if event.Button != sdl.BUTTON_LEFT || event.Type != sdl.MOUSEBUTTONDOWN {
 					continue
 				}
-				butt := FindIntersectItem(&sdl.Rect{X: event.X, Y: event.Y, W: 1, H: 1}, BUTTONS)
+				butt := FindIntersectItem(&sdl.Rect{X: event.X, Y: event.Y, W: 1, H: 1}, bar.Elements)
 				if butt != nil {
-					go (*butt).Action()
+					go butt.Action(bar)
 				}
 			case *sdl.MouseMotionEvent:
-				butt := FindIntersectItem(&sdl.Rect{X: event.X, Y: event.Y, W: 1, H: 1}, BUTTONS)
+				butt := FindIntersectItem(&sdl.Rect{X: event.X, Y: event.Y, W: 1, H: 1}, bar.Elements)
 				if butt != nil {
-					bar.HoveredItem = *butt
+					bar.HoveredItem = butt
 				} else {
 					bar.HoveredItem = nil
 				}
@@ -140,10 +105,10 @@ func main() {
 		}
 	}()
 
-	refreshBackground := GetBackgroundRefreshFunction(surf, 5, 80)
+	refreshBackground := GetBackgroundRefreshFunction(surf, 5, 230)
 	for {
 		refreshBackground()
-		DrawItems(surf, BUTTONS, bar)
+		DrawItems(surf, bar.Elements, bar)
 
 		window.UpdateSurface()
 		sdl.Delay(100)

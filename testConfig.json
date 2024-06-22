@@ -1,0 +1,14 @@
+{
+  "objects": [
+    {
+      "ObjType": "button",
+      "W": 64,
+      "H": 64
+    },
+    {
+      "ObjType": "button",
+      "W": 32,
+      "H": 32 
+    }
+  ]
+}

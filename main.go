@@ -5,6 +5,7 @@ import (
 	"log"
 	"maux_bar/bar_context"
 	"maux_bar/bar_items"
+	"maux_bar/config_loader"
 	"os/exec"
 	"syscall"
 
@@ -96,6 +97,7 @@ func GetBackgroundRefreshFunction(surf *sdl.Surface, min uint8, max uint8) func(
 
 func main() {
 	bar := bar_context.New()
+	config_loader.PrepareBar("./testConfig.json")
 
 	window, err := sdl.CreateShapedWindow(
 		"test",

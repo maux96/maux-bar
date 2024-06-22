@@ -6,8 +6,9 @@
       "W": 32,
       "H": 32,
       "Values": {
-        "label": "Estrellita",
-        "imgPath": "./google_icons/star.png"
+        "label": "Terminal",
+        "imgPath": "./google_icons/term.png",
+        "action": "kitty /home/"
       }
     },
     {
@@ -15,8 +16,18 @@
       "W": 32,
       "H": 32,
       "Values": {
-        "label": "Estrellita",
-        "imgPath": "./google_icons/star.png",
+        "label": "Brave",
+        "imgPath": "./google_icons/browser.png",
+        "action": "brave"
+      }
+    },
+    {
+      "ObjType": "button",
+      "W": 32,
+      "H": 32,
+      "Values": {
+        "label": "Ranger",
+        "imgPath": "./google_icons/folder.png",
         "action": "kitty -e ranger"
       }
     },
@@ -25,19 +36,9 @@
       "W": 32,
       "H": 32,
       "Values": {
-        "label": "Estrellita",
-        "imgPath": "./google_icons/star.png",
-        "action": "kitty -e ranger"
-      }
-    },
-    {
-      "ObjType": "button",
-      "W": 32,
-      "H": 32,
-      "Values": {
-        "label": "Estrellita",
-        "imgPath": "./google_icons/star.png",
-        "action": "kitty -e ranger"
+        "label": "Steam",
+        "imgPath": "./google_icons/joystick.png",
+        "action": "steam"
       }
     },
     {
@@ -47,7 +48,7 @@
       "Values": {
         "label": "Menu",
         "imgPath": "./google_icons/apps.png",
-        "action": "kitty -e ranger"
+        "action": "rofi -no-config -no-lazy-grab -show drun -modi drun"
       }
     }
   ]

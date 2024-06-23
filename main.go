@@ -1,14 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"maux_bar/bar_items"
 	"maux_bar/config_loader"
 
 	sdl "github.com/veandco/go-sdl2/sdl"
 )
-
-const WIDTH, HEIGHT uint32 = 800, 50
 
 func FindIntersectItem(rect *sdl.Rect, items []bar_items.BarElement) bar_items.BarElement {
 	for i := range items {
@@ -22,39 +19,60 @@ func FindIntersectItem(rect *sdl.Rect, items []bar_items.BarElement) bar_items.B
 	return nil
 }
 
-func SetItemsCentered(surface *sdl.Surface, items []bar_items.BarElement) {
+func SetItemsCentered(surface *sdl.Surface, direction bar_items.BarDirection, items []bar_items.BarElement) {
 	const GAP int32 = 10
 
-	totalSpaceX := GAP*int32(len(items)) - 1
+	totalSpace := GAP*int32(len(items)) - 1
 	for _, item := range items {
 		rect := item.GetRect()
-		W, _ := rect.W, rect.H
-		totalSpaceX += W
+		if direction == bar_items.DIRECTION_HORIZONTAL {
+			totalSpace += rect.W
+		} else {
+			totalSpace += rect.H
+		}
 	}
-
 	surfW, surfH := surface.W, surface.H
-	startPosX := surfW/2 - totalSpaceX/2
+
+	var startPos int32
+	if direction == bar_items.DIRECTION_HORIZONTAL {
+		startPos = surfW/2 - totalSpace/2
+	} else {
+		startPos = surfH/2 - totalSpace/2
+	}
 	for _, item := range items {
 		itemRect := item.GetRect()
-		buttX := startPosX
-		buttY := int32(surfH/2 - itemRect.H/2)
-
-		startPosX += itemRect.W + GAP
-		item.SetPosition(buttX, buttY)
+		var X, Y int32
+		if direction == bar_items.DIRECTION_HORIZONTAL {
+			X = startPos
+			Y = int32(surfH/2 - itemRect.H/2)
+			startPos += itemRect.W + GAP
+		} else {
+			X = int32(surfW/2 - itemRect.W/2)
+			Y = startPos
+			startPos += itemRect.H + GAP
+		}
+		item.SetPosition(X, Y)
 	}
 }
 
-func SetItemsSpaceBetween(surface *sdl.Surface, items []bar_items.BarElement) {
+func SetItemsSpaceBetween(surface *sdl.Surface, direction bar_items.BarDirection, items []bar_items.BarElement) {
+	W, H := surface.W, surface.H
+	totalItems := int32(len(items))
+
 	for i := range items {
 		var item bar_items.Positionable = items[i]
-		wW, wH := surface.W, surface.H
-		totalItems := int32(len(items))
-
+		var posX, posY int32
 		itemRect := item.GetRect()
-		buttX := int32(int32(i+1)*(wW/(totalItems+1)) - itemRect.W/2)
-		buttY := int32(wH/2 - itemRect.H/2)
-		item.SetPosition(buttX, buttY)
+		if direction == bar_items.DIRECTION_HORIZONTAL {
+			posX = int32(int32(i+1)*(W/(totalItems+1)) - itemRect.W/2)
+			posY = int32(H/2 - itemRect.H/2)
+		} else if direction == bar_items.DIRECTION_VERTICAL {
+			posX = int32(W/2 - itemRect.W/2)
+			posY = int32(int32(i+1)*(H/(totalItems+1)) - itemRect.H/2)
+		}
+		item.SetPosition(posX, posY)
 	}
+
 }
 
 func DrawItems(surface *sdl.Surface, items []bar_items.BarElement, barCtx *bar_items.BarContext) {
@@ -82,13 +100,12 @@ func GetBackgroundRefreshFunction(surf *sdl.Surface, min uint8, max uint8) func(
 func main() {
 	bar := bar_items.NewBarContext()
 	config_loader.PrepareBar(bar, "./testConfig.json")
-	fmt.Println(bar)
 
-	window, err := sdl.CreateShapedWindow(
-		"test",
-		sdl.WINDOWPOS_CENTERED, sdl.WINDOWPOS_CENTERED,
-		WIDTH, HEIGHT,
-		sdl.WINDOW_SHOWN|sdl.WINDOW_SKIP_TASKBAR|sdl.WINDOW_ALWAYS_ON_TOP|sdl.WINDOW_BORDERLESS,
+	window, err := sdl.CreateWindow(
+		"maux_bar",
+		sdl.WINDOWPOS_CENTERED, sdl.WINDOWPOS_UNDEFINED,
+		int32(bar.Config.W), int32(bar.Config.H),
+		sdl.WINDOW_OPENGL|sdl.WINDOW_SHOWN|sdl.WINDOW_SKIP_TASKBAR|sdl.WINDOW_ALWAYS_ON_TOP|sdl.WINDOW_BORDERLESS,
 	)
 	if err != nil {
 		panic(err)
@@ -100,7 +117,8 @@ func main() {
 		panic(err)
 	}
 
-	SetItemsCentered(surf, bar.Elements)
+	// SetItemsCentered(surf, bar.Config.Direction, bar.Elements)
+	SetItemsSpaceBetween(surf, bar.Config.Direction, bar.Elements)
 
 	go func() {
 		/* wating for mouse events */

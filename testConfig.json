@@ -1,5 +1,8 @@
 {
-  "Display": "centered",
+  "W": 50,
+  "H": 500,
+  "PlaceItems": "centered",
+  "Direction":  "vertical",
   "Objects": [
     {
       "ObjType": "button",

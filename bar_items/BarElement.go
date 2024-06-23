@@ -4,6 +4,13 @@ import (
 	sdl "github.com/veandco/go-sdl2/sdl"
 )
 
+type RawBarObjectData struct {
+	ObjType string
+	W       int32
+	H       int32
+	Values  map[string]string
+}
+
 type BarElement interface {
 	Draweable
 	Positionable

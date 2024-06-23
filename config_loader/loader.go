@@ -12,17 +12,7 @@ import (
 	"syscall"
 )
 
-type ObjectData struct {
-	ObjType string
-	W       int32
-	H       int32
-	Values  map[string]string
-}
-type ConfigData struct {
-	Objects []ObjectData
-}
-
-func loadConfig(fileName string) (config *ConfigData, err error) {
+func loadConfig(fileName string) (config *bar_items.BarConfigData, err error) {
 	jsonFile, err := os.Open(fileName)
 	if err != nil {
 		return nil, err
@@ -32,7 +22,7 @@ func loadConfig(fileName string) (config *ConfigData, err error) {
 	if err != nil {
 		return nil, err
 	}
-	var data ConfigData
+	var data bar_items.BarConfigData
 	err = json.Unmarshal(content, &data)
 	return &data, err
 }
@@ -42,7 +32,7 @@ func PrepareBar(bar *bar_items.BarContext, fileName string) (err error) {
 	if err != nil {
 		return err
 	}
-
+	bar.Config = configData
 	for i := range configData.Objects {
 		obj, err := objectCreator(&configData.Objects[i])
 		if err != nil {
@@ -53,7 +43,7 @@ func PrepareBar(bar *bar_items.BarContext, fileName string) (err error) {
 	return nil
 }
 
-func objectCreator(objectData *ObjectData) (bar_items.BarElement, error) {
+func objectCreator(objectData *bar_items.RawBarObjectData) (bar_items.BarElement, error) {
 	switch objectData.ObjType {
 	case "button":
 		actionFunc := createExecuter(strings.Split(objectData.Values["action"], " "))

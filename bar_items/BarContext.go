@@ -1,10 +1,14 @@
 package bar_items
 
+import "github.com/veandco/go-sdl2/sdl"
+
 type BarContext struct {
 	/* TODO */
-	Config      *BarConfigData
-	HoveredItem BarElement
-	Elements    []BarElement
+	Config         *BarConfigData
+	HoveredItem    BarElement
+	Window         *sdl.Window
+	TooltipWindows *sdl.Window
+	Elements       []BarElement
 }
 
 type BarDirection string

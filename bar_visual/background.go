@@ -6,9 +6,6 @@ import (
 
 /*
 The returned function changes the background by interpolating the two selected colors with a step size of delta.
-
-note: The bits of this structure sdl.Color can be directly reinterpreted as an integer-packed color which uses the SDL_PIXELFORMAT_RGBA32 format (SDL_PIXELFORMAT_ABGR8888 on little-endian systems and SDL_PIXELFORMAT_RGBA8888 on big-endian systems).
-https://wiki.libsdl.org/SDL2/SDL_Color
 */
 func GetBackgroundRefreshFunction(surf *sdl.Surface, col1 sdl.Color, col2 sdl.Color, delta float64) func() {
 	sign := 1.0
@@ -27,6 +24,6 @@ func GetBackgroundRefreshFunction(surf *sdl.Surface, col1 sdl.Color, col2 sdl.Co
 		} else {
 			step = nextStepValue
 		}
-		surf.FillRect(nil, currentColor.Uint32())
+		surf.FillRect(nil, sdl.MapRGBA(surf.Format, currentColor.R, currentColor.G, currentColor.B, currentColor.A))
 	}
 }

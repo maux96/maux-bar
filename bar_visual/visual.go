@@ -1,14 +1,17 @@
 package bar_visual
 
 import (
+	"log"
 	"maux_bar/bar_items"
 
 	sdl "github.com/veandco/go-sdl2/sdl"
+	ttf "github.com/veandco/go-sdl2/ttf"
 )
 
 var (
 	cursorHandPointer   *sdl.Cursor
 	cursorNormalPointer *sdl.Cursor
+	fontUsed            *ttf.Font
 )
 
 func FindIntersectItem(rect *sdl.Rect, items []bar_items.BarElement) bar_items.BarElement {
@@ -66,11 +69,27 @@ func handleEvents(bar *bar_items.BarContext) {
 }
 
 func setTooltipContent(content string, bar *bar_items.BarContext) {
-	surf, _ := bar.TooltipWindows.GetSurface()
-	surf.FillRect(nil, sdl.MapRGB(surf.Format, 0, 0, 0))
-	bar.TooltipWindows.UpdateSurface()
 
-	// TODO add text to the tooltip
+	const PADDING = 5
+	fontSurf, err := fontUsed.RenderUTF8Solid(content, sdl.Color{R: 255, G: 0, B: 0, A: 255})
+	if err != nil {
+		log.Println(err.Error())
+	} else {
+		defer fontSurf.Free()
+
+		W, H := fontSurf.W, fontSurf.H
+		bar.TooltipWindows.SetSize(PADDING*2+W, PADDING*2+H)
+
+		surf, _ := bar.TooltipWindows.GetSurface()
+		defer surf.Free()
+
+		surf.FillRect(nil, sdl.MapRGB(surf.Format, 0, 0, 0))
+		fontSurf.Blit(nil, surf, &sdl.Rect{X: PADDING, Y: PADDING, W: W + PADDING, H: H + PADDING})
+	}
+	err = bar.TooltipWindows.UpdateSurface()
+	if err != nil {
+		log.Println(err.Error())
+	}
 }
 func setTooltipPosition(x, y int32, bar *bar_items.BarContext) {
 	/* show the tooltip in specific direction based in window position in screen */
@@ -83,10 +102,15 @@ func setTooltipPosition(x, y int32, bar *bar_items.BarContext) {
 	}
 }
 
-func initTooltipAndCursors(bar *bar_items.BarContext) error {
+func initTooltipAndCursors(bar *bar_items.BarContext) (err error) {
 
 	cursorHandPointer = sdl.CreateSystemCursor(sdl.SYSTEM_CURSOR_HAND)
 	cursorNormalPointer = sdl.CreateSystemCursor(sdl.SYSTEM_CURSOR_ARROW)
+
+	fontUsed, err = ttf.OpenFont("./google_icons/fonts/Freedom-10eM.ttf", 16)
+	if err != nil {
+		return err
+	}
 
 	window, err := sdl.CreateWindow("maux_bar_tooltip", 1, 1, 70, 30, sdl.WINDOW_TOOLTIP|sdl.WINDOW_ALWAYS_ON_TOP|sdl.WINDOW_HIDDEN)
 	if err != nil {
@@ -104,11 +128,17 @@ func StartBar(bar *bar_items.BarContext) {
 	}
 	defer sdl.Quit()
 
+	err = ttf.Init()
+	if err != nil {
+		panic(err)
+	}
+	defer ttf.Quit()
+
 	window, err := sdl.CreateWindow(
 		"maux_bar",
 		100, 1,
 		int32(bar.Config.W), int32(bar.Config.H),
-		sdl.WINDOW_SHOWN|sdl.WINDOW_ALWAYS_ON_TOP|sdl.WINDOW_BORDERLESS|sdl.WINDOW_SKIP_TASKBAR,
+		sdl.WINDOW_OPENGL|sdl.WINDOW_SHOWN|sdl.WINDOW_ALWAYS_ON_TOP|sdl.WINDOW_BORDERLESS|sdl.WINDOW_SKIP_TASKBAR,
 	)
 	if err != nil {
 		panic(err)
@@ -142,7 +172,10 @@ func StartBar(bar *bar_items.BarContext) {
 		refreshBackgroundColor()
 		DrawItems(surf, bar.Elements, bar)
 
-		window.UpdateSurface()
+		updateErr := window.UpdateSurface()
+		if updateErr != nil {
+			log.Printf(updateErr.Error())
+		}
 		sdl.Delay(100)
 	}
 }

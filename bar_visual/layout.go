@@ -1,10 +1,23 @@
 package bar_visual
 
 import (
+	"log"
 	"maux_bar/bar_items"
 
 	sdl "github.com/veandco/go-sdl2/sdl"
 )
+
+func SetItemsPlacement(placementMode bar_items.BarItemsPlacement, surface *sdl.Surface, direction bar_items.BarDirection, items []bar_items.BarElement) {
+	switch placementMode {
+	case bar_items.PLACE_ITEMS_CENTER:
+		SetItemsCentered(surface, direction, items)
+	case bar_items.PLACE_ITEMS_SPACE_BETWEEN:
+		SetItemsSpaceBetween(surface, direction, items)
+	default:
+		log.Println("unknown placement. using center")
+		SetItemsCentered(surface, direction, items)
+	}
+}
 
 func SetItemsCentered(surface *sdl.Surface, direction bar_items.BarDirection, items []bar_items.BarElement) {
 	const GAP int32 = 10

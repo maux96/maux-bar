@@ -68,22 +68,28 @@ func handleEvents(bar *bar_items.BarContext) {
 	}
 }
 
-func StartBar(bar *bar_items.BarContext) {
+func InitEverythingSDL() func() {
 	err := sdl.Init(sdl.INIT_EVERYTHING)
 	if err != nil {
 		panic(err)
 	}
-	defer sdl.Quit()
 
 	err = ttf.Init()
 	if err != nil {
 		panic(err)
 	}
-	defer ttf.Quit()
+
+	return func() {
+		sdl.Quit()
+		ttf.Quit()
+	}
+}
+
+func StartBar(bar *bar_items.BarContext) {
 
 	window, err := sdl.CreateWindow(
 		"maux_bar",
-		100, 1,
+		1, 1,
 		int32(bar.Config.W), int32(bar.Config.H),
 		sdl.WINDOW_OPENGL|sdl.WINDOW_SHOWN|sdl.WINDOW_ALWAYS_ON_TOP|sdl.WINDOW_BORDERLESS|sdl.WINDOW_SKIP_TASKBAR,
 	)
@@ -103,8 +109,7 @@ func StartBar(bar *bar_items.BarContext) {
 		panic(err)
 	}
 
-	// SetItemsCentered(surf, bar.Config.Direction, bar.Elements)
-	SetItemsSpaceBetween(surf, bar.Config.Direction, bar.Elements)
+	SetItemsPlacement(bar.Config.PlaceItems, surf, bar.Config.Direction, bar.Elements)
 
 	go handleEvents(bar)
 

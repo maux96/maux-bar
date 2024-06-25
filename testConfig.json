@@ -1,7 +1,7 @@
 {
   "W": 50,
   "H": 500,
-  "PlaceItems": "centered",
+  "PlaceItems": "spacebetween",
   "Direction":  "vertical",
   "Objects": [
     {

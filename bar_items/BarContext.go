@@ -12,16 +12,20 @@ type BarContext struct {
 }
 
 type BarDirection string
+type BarItemsPlacement string
 
 const (
 	DIRECTION_HORIZONTAL BarDirection = "horizontal"
 	DIRECTION_VERTICAL   BarDirection = "vertical"
+
+	PLACE_ITEMS_CENTER        BarItemsPlacement = "center"
+	PLACE_ITEMS_SPACE_BETWEEN BarItemsPlacement = "spacebetween"
 )
 
 type BarConfigData struct {
 	W          int32
 	H          int32
-	PlaceItems string
+	PlaceItems BarItemsPlacement
 	Direction  BarDirection
 	Objects    []RawBarObjectData
 }

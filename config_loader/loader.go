@@ -10,7 +10,40 @@ import (
 	"os/exec"
 	"strings"
 	"syscall"
+
+	"github.com/veandco/go-sdl2/sdl"
 )
+
+func SetDefaultValues(bar *bar_items.BarContext) {
+	if bar.Config == nil {
+		bar.Config = &bar_items.BarConfigData{}
+	}
+	if bar.Config.Direction == "" {
+		bar.Config.Direction = bar_items.DIRECTION_HORIZONTAL
+	}
+
+	mode, err := sdl.GetDesktopDisplayMode(0)
+	if err != nil {
+		log.Println(err.Error())
+	} else {
+		if bar.Config.W == 0 && bar.Config.Direction == bar_items.DIRECTION_HORIZONTAL {
+			bar.Config.W = mode.W
+			if bar.Config.H == 0 {
+				bar.Config.H = 48
+			}
+		}
+		if bar.Config.H == 0 && bar.Config.Direction == bar_items.DIRECTION_VERTICAL {
+			bar.Config.H = mode.H
+			if bar.Config.W == 0 {
+				bar.Config.W = 48
+			}
+		}
+	}
+
+	if bar.Config.PlaceItems == "" {
+		bar.Config.PlaceItems = bar_items.PLACE_ITEMS_CENTER
+	}
+}
 
 func loadConfig(fileName string) (config *bar_items.BarConfigData, err error) {
 	jsonFile, err := os.Open(fileName)

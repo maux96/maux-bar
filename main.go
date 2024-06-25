@@ -10,5 +10,10 @@ func main() {
 	bar := bar_items.NewBarContext()
 	config_loader.PrepareBar(bar, "./testConfig.json")
 
+	QuitFunction := bar_visual.InitEverythingSDL()
+	defer QuitFunction()
+
+	config_loader.SetDefaultValues(bar)
+
 	bar_visual.StartBar(bar)
 }

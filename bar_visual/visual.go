@@ -69,30 +69,36 @@ func handleEvents(bar *bar_items.BarContext) {
 }
 
 func setTooltipContent(content string, bar *bar_items.BarContext) {
-
 	const PADDING = 5
+
+	rend, err := sdl.CreateRenderer(bar.TooltipWindows, -1, sdl.RENDERER_ACCELERATED)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	defer rend.Destroy()
+
 	fontSurf, err := fontUsed.RenderUTF8Solid(content, sdl.Color{R: 255, G: 0, B: 0, A: 255})
 	if err != nil {
 		log.Println(err.Error())
-	} else {
-		defer fontSurf.Free()
-
-		W, H := fontSurf.W, fontSurf.H
-		bar.TooltipWindows.SetSize(PADDING*2+W, PADDING*2+H)
-
-		surf, _ := bar.TooltipWindows.GetSurface()
-		defer surf.Free()
-
-		surf.FillRect(nil, sdl.MapRGB(surf.Format, 0, 0, 0))
-		fontSurf.Blit(nil, surf, &sdl.Rect{X: PADDING, Y: PADDING, W: W + PADDING, H: H + PADDING})
+		return
 	}
-	err = bar.TooltipWindows.UpdateSurface()
+	defer fontSurf.Free()
+
+	W, H := fontSurf.W, fontSurf.H
+	bar.TooltipWindows.SetSize(PADDING*2+W, PADDING*2+H)
+
+	fontTexture, err := rend.CreateTextureFromSurface(fontSurf)
 	if err != nil {
 		log.Println(err.Error())
+		return
 	}
+
+	rend.Copy(fontTexture, nil, &sdl.Rect{X: PADDING, Y: PADDING, W: W, H: H})
+	rend.Present()
 }
 func setTooltipPosition(x, y int32, bar *bar_items.BarContext) {
-	/* show the tooltip in specific direction based in window position in screen */
+	/* TODO show the tooltip in specific direction based in window position in screen */
 	X, Y := bar.Window.GetPosition()
 	tW, tH := bar.TooltipWindows.GetSize()
 	if bar.Config.Direction == bar_items.DIRECTION_VERTICAL {

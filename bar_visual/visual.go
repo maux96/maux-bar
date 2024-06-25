@@ -78,7 +78,7 @@ func setTooltipContent(content string, bar *bar_items.BarContext) {
 	}
 	defer rend.Destroy()
 
-	fontSurf, err := fontUsed.RenderUTF8Solid(content, sdl.Color{R: 255, G: 0, B: 0, A: 255})
+	fontSurf, err := fontUsed.RenderUTF8Solid(content, sdl.Color{R: 200, G: 200, B: 200, A: 200})
 	if err != nil {
 		log.Println(err.Error())
 		return
@@ -93,6 +93,9 @@ func setTooltipContent(content string, bar *bar_items.BarContext) {
 		log.Println(err.Error())
 		return
 	}
+	defer fontTexture.Destroy()
+	rend.SetDrawColor(0, 0, 0, 255)
+	rend.Clear()
 
 	rend.Copy(fontTexture, nil, &sdl.Rect{X: PADDING, Y: PADDING, W: W, H: H})
 	rend.Present()
@@ -180,7 +183,7 @@ func StartBar(bar *bar_items.BarContext) {
 
 		updateErr := window.UpdateSurface()
 		if updateErr != nil {
-			log.Printf(updateErr.Error())
+			log.Println(updateErr.Error())
 		}
 		sdl.Delay(100)
 	}

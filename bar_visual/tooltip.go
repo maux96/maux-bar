@@ -56,7 +56,7 @@ func initTooltipAndCursors(bar *bar_items.BarContext) (err error) {
 	cursorHandPointer = sdl.CreateSystemCursor(sdl.SYSTEM_CURSOR_HAND)
 	cursorNormalPointer = sdl.CreateSystemCursor(sdl.SYSTEM_CURSOR_ARROW)
 
-	fontUsed, err = ttf.OpenFont("./google_icons/fonts/Freedom-10eM.ttf", 16)
+	fontUsed, err = ttf.OpenFont("./google_icons/fonts/Ubuntu-n1M0.ttf", 16)
 	if err != nil {
 		return err
 	}

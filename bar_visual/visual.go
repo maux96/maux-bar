@@ -6,6 +6,11 @@ import (
 	sdl "github.com/veandco/go-sdl2/sdl"
 )
 
+var (
+	cursorHandPointer   *sdl.Cursor
+	cursorNormalPointer *sdl.Cursor
+)
+
 func FindIntersectItem(rect *sdl.Rect, items []bar_items.BarElement) bar_items.BarElement {
 	for i := range items {
 		var item bar_items.Positionable = items[i]
@@ -38,14 +43,20 @@ func handleEvents(bar *bar_items.BarContext) {
 			}
 		case *sdl.MouseMotionEvent:
 			el := FindIntersectItem(&sdl.Rect{X: event.X, Y: event.Y, W: 1, H: 1}, bar.Elements)
-			if butt, ok := el.(*bar_items.Button); el != nil && ok && len(butt.Label) > 0 {
-				bar.HoveredItem = el
-				setTooltipPosition(event.X, event.Y, bar)
-
-				bar.TooltipWindows.Show()
-				setTooltipContent(butt.Label, bar)
+			bar.HoveredItem = el
+			/* change cursor */
+			if el != nil {
+				sdl.SetCursor(cursorHandPointer)
 			} else {
-				bar.HoveredItem = nil
+				sdl.SetCursor(cursorNormalPointer)
+			}
+
+			/* tooltip */
+			if butt, ok := el.(*bar_items.Button); el != nil && ok && len(butt.Label) > 0 {
+				setTooltipPosition(event.X, event.Y, bar)
+				setTooltipContent(butt.Label, bar)
+				bar.TooltipWindows.Show()
+			} else {
 				bar.TooltipWindows.Hide()
 			}
 		case *sdl.WindowEvent:
@@ -58,6 +69,7 @@ func setTooltipContent(content string, bar *bar_items.BarContext) {
 	surf, _ := bar.TooltipWindows.GetSurface()
 	surf.FillRect(nil, sdl.MapRGB(surf.Format, 0, 0, 0))
 	bar.TooltipWindows.UpdateSurface()
+
 	// TODO add text to the tooltip
 }
 func setTooltipPosition(x, y int32, bar *bar_items.BarContext) {
@@ -71,7 +83,11 @@ func setTooltipPosition(x, y int32, bar *bar_items.BarContext) {
 	}
 }
 
-func initTooltipWindows(bar *bar_items.BarContext) error {
+func initTooltipAndCursors(bar *bar_items.BarContext) error {
+
+	cursorHandPointer = sdl.CreateSystemCursor(sdl.SYSTEM_CURSOR_HAND)
+	cursorNormalPointer = sdl.CreateSystemCursor(sdl.SYSTEM_CURSOR_ARROW)
+
 	window, err := sdl.CreateWindow("maux_bar_tooltip", 1, 1, 70, 30, sdl.WINDOW_TOOLTIP|sdl.WINDOW_ALWAYS_ON_TOP|sdl.WINDOW_HIDDEN)
 	if err != nil {
 		return err
@@ -105,7 +121,7 @@ func StartBar(bar *bar_items.BarContext) {
 		panic(err)
 	}
 
-	err = initTooltipWindows(bar)
+	err = initTooltipAndCursors(bar)
 	if err != nil {
 		panic(err)
 	}

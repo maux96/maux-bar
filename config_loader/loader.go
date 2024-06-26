@@ -16,10 +16,19 @@ import (
 
 func SetDefaultValues(bar *bar_items.BarContext) {
 	if bar.Config == nil {
-		bar.Config = &bar_items.BarConfigData{}
+		bar.Config = &bar_items.BarConfigData{
+			Background: bar_items.BackgroundConfig{
+				Type:   "color-interpolation",
+				Values: map[string]string{},
+			},
+		}
 	}
 	if bar.Config.Direction == "" {
 		bar.Config.Direction = bar_items.DIRECTION_HORIZONTAL
+	}
+
+	if bar.Config.Background.Values == nil {
+		bar.Config.Background.Values = make(map[string]string)
 	}
 
 	mode, err := sdl.GetDesktopDisplayMode(0)

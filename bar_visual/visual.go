@@ -121,9 +121,7 @@ func StartBar(bar *bar_items.BarContext) {
 	/* color selection in config file */
 	refreshBackgroundColor := GetBackgroundRefreshFunction(
 		surf,
-		sdl.Color{R: 200, G: 30, B: 126, A: 255},
-		sdl.Color{R: 30, G: 126, B: 200, A: 255},
-		0.05,
+		bar.Config.Background,
 	)
 	for {
 		refreshBackgroundColor()

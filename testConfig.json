@@ -1,8 +1,16 @@
 {
   "W": 50,
   "H": 500,
-  "PlaceItems": "spacebetween",
+  "PlaceItems": "space-between",
   "Direction":  "vertical",
+  "Background": {
+    "Type": "color-interpolation",
+    "Values":{
+      "col1": "200 30 126 255",
+      "col2": "30 126 200 255",
+      "delta": "0.05"
+    }
+  },
   "Objects": [
     {
       "ObjType": "button",

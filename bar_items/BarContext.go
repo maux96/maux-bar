@@ -19,7 +19,7 @@ const (
 	DIRECTION_VERTICAL   BarDirection = "vertical"
 
 	PLACE_ITEMS_CENTER        BarItemsPlacement = "center"
-	PLACE_ITEMS_SPACE_BETWEEN BarItemsPlacement = "spacebetween"
+	PLACE_ITEMS_SPACE_BETWEEN BarItemsPlacement = "space-between"
 )
 
 type BarConfigData struct {
@@ -28,6 +28,12 @@ type BarConfigData struct {
 	PlaceItems BarItemsPlacement
 	Direction  BarDirection
 	Objects    []RawBarObjectData
+	Background BackgroundConfig
+}
+
+type BackgroundConfig struct {
+	Type   string
+	Values map[string]string
 }
 
 func NewBarContext() *BarContext {

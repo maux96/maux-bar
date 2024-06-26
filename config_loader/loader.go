@@ -21,6 +21,10 @@ func SetDefaultValues(bar *bar_items.BarContext) {
 				Type:   "color-interpolation",
 				Values: map[string]string{},
 			},
+			Font: bar_items.FontConfig{
+				// TODO default FontPath
+				Size: 16,
+			},
 		}
 	}
 	if bar.Config.Direction == "" {

@@ -11,7 +11,6 @@ import (
 var (
 	cursorHandPointer   *sdl.Cursor
 	cursorNormalPointer *sdl.Cursor
-	fontUsed            *ttf.Font
 )
 
 func FindIntersectItem(rect *sdl.Rect, items []bar_items.BarElement) bar_items.BarElement {
@@ -99,7 +98,7 @@ func StartBar(bar *bar_items.BarContext) {
 	defer window.Destroy()
 	bar.Window = window
 
-	err = initTooltipAndCursors(bar)
+	err = initTooltipCursorsFont(bar)
 	if err != nil {
 		panic(err)
 	}
@@ -133,4 +132,24 @@ func StartBar(bar *bar_items.BarContext) {
 		}
 		sdl.Delay(100)
 	}
+}
+
+func initTooltipCursorsFont(bar *bar_items.BarContext) (err error) {
+
+	cursorHandPointer = sdl.CreateSystemCursor(sdl.SYSTEM_CURSOR_HAND)
+	cursorNormalPointer = sdl.CreateSystemCursor(sdl.SYSTEM_CURSOR_ARROW)
+
+	fontUsed, err := ttf.OpenFont(bar.Config.Font.FontPath, bar.Config.Font.Size)
+	if err != nil {
+		return err
+	}
+	bar.Font =  fontUsed
+
+	window, err := sdl.CreateWindow("maux_bar_tooltip", 1, 1, 70, 30, sdl.WINDOW_TOOLTIP|sdl.WINDOW_ALWAYS_ON_TOP|sdl.WINDOW_HIDDEN)
+	if err != nil {
+		return err
+	}
+
+	bar.TooltipWindows = window
+	return nil
 }

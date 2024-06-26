@@ -1,6 +1,10 @@
 {
   "W": 50,
   "H": 500,
+  "Font": {
+    "FontPath": "./google_icons/fonts/Ubuntu-n1M0.ttf",
+    "Size":32 
+  },
   "PlaceItems": "space-between",
   "Direction":  "vertical",
   "Background": {

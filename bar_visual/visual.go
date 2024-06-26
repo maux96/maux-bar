@@ -99,17 +99,22 @@ func StartBar(bar *bar_items.BarContext) {
 	defer window.Destroy()
 	bar.Window = window
 
-	surf, err := window.GetSurface()
-	if err != nil {
-		panic(err)
-	}
-
 	err = initTooltipAndCursors(bar)
 	if err != nil {
 		panic(err)
 	}
 
-	SetItemsPlacement(bar.Config.PlaceItems, surf, bar.Config.Direction, bar.Elements)
+	surf, err := window.GetSurface()
+	if err != nil {
+		panic(err)
+	}
+
+	SetItemsPlacement(
+		bar.Config.PlaceItems,
+		sdl.Rect{X: 0, Y: 0, W: surf.W, H: surf.H},
+		bar.Config.Direction,
+		bar.Elements,
+	)
 
 	go handleEvents(bar)
 

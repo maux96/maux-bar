@@ -7,19 +7,19 @@ import (
 	sdl "github.com/veandco/go-sdl2/sdl"
 )
 
-func SetItemsPlacement(placementMode bar_items.BarItemsPlacement, surface *sdl.Surface, direction bar_items.BarDirection, items []bar_items.BarElement) {
+func SetItemsPlacement(placementMode bar_items.BarItemsPlacement, containerRect sdl.Rect, direction bar_items.BarDirection, items []bar_items.BarElement) {
 	switch placementMode {
 	case bar_items.PLACE_ITEMS_CENTER:
-		SetItemsCentered(surface, direction, items)
+		SetItemsCentered(containerRect, direction, items)
 	case bar_items.PLACE_ITEMS_SPACE_BETWEEN:
-		SetItemsSpaceBetween(surface, direction, items)
+		SetItemsSpaceBetween(containerRect, direction, items)
 	default:
 		log.Println("unknown placement. using center")
-		SetItemsCentered(surface, direction, items)
+		SetItemsCentered(containerRect, direction, items)
 	}
 }
 
-func SetItemsCentered(surface *sdl.Surface, direction bar_items.BarDirection, items []bar_items.BarElement) {
+func SetItemsCentered(containerRect sdl.Rect, direction bar_items.BarDirection, items []bar_items.BarElement) {
 	const GAP int32 = 10
 
 	totalSpace := GAP*int32(len(items)) - 1
@@ -31,23 +31,23 @@ func SetItemsCentered(surface *sdl.Surface, direction bar_items.BarDirection, it
 			totalSpace += rect.H
 		}
 	}
-	surfW, surfH := surface.W, surface.H
+	containerW, containerH := containerRect.W, containerRect.H
 
 	var startPos int32
 	if direction == bar_items.DIRECTION_HORIZONTAL {
-		startPos = surfW/2 - totalSpace/2
+		startPos = containerRect.X + containerW/2 - totalSpace/2
 	} else {
-		startPos = surfH/2 - totalSpace/2
+		startPos = containerRect.Y + containerH/2 - totalSpace/2
 	}
 	for _, item := range items {
 		itemRect := item.GetRect()
 		var X, Y int32
 		if direction == bar_items.DIRECTION_HORIZONTAL {
 			X = startPos
-			Y = int32(surfH/2 - itemRect.H/2)
+			Y = containerRect.Y + int32(containerH/2-itemRect.H/2)
 			startPos += itemRect.W + GAP
 		} else {
-			X = int32(surfW/2 - itemRect.W/2)
+			X = containerRect.X + int32(containerW/2-itemRect.W/2)
 			Y = startPos
 			startPos += itemRect.H + GAP
 		}
@@ -55,8 +55,8 @@ func SetItemsCentered(surface *sdl.Surface, direction bar_items.BarDirection, it
 	}
 }
 
-func SetItemsSpaceBetween(surface *sdl.Surface, direction bar_items.BarDirection, items []bar_items.BarElement) {
-	W, H := surface.W, surface.H
+func SetItemsSpaceBetween(containerRect sdl.Rect, direction bar_items.BarDirection, items []bar_items.BarElement) {
+	W, H := containerRect.W, containerRect.H
 	totalItems := int32(len(items))
 
 	for i := range items {
@@ -64,11 +64,11 @@ func SetItemsSpaceBetween(surface *sdl.Surface, direction bar_items.BarDirection
 		var posX, posY int32
 		itemRect := item.GetRect()
 		if direction == bar_items.DIRECTION_HORIZONTAL {
-			posX = int32(int32(i+1)*(W/(totalItems+1)) - itemRect.W/2)
-			posY = int32(H/2 - itemRect.H/2)
+			posX = containerRect.X + int32(int32(i+1)*(W/(totalItems+1))-itemRect.W/2)
+			posY = containerRect.Y + int32(H/2-itemRect.H/2)
 		} else if direction == bar_items.DIRECTION_VERTICAL {
-			posX = int32(W/2 - itemRect.W/2)
-			posY = int32(int32(i+1)*(H/(totalItems+1)) - itemRect.H/2)
+			posX = containerRect.X + int32(W/2-itemRect.W/2)
+			posY = containerRect.Y + int32(int32(i+1)*(H/(totalItems+1))-itemRect.H/2)
 		}
 		item.SetPosition(posX, posY)
 	}

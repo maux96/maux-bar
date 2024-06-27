@@ -18,7 +18,7 @@ type BarElement interface {
 }
 
 type Draweable interface {
-	Draw(surf *sdl.Surface, ctx *BarContext)
+	Draw(rend *sdl.Renderer, ctx *BarContext)
 }
 
 type Positionable interface {

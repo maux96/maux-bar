@@ -1,12 +1,12 @@
 {
-  "W": 50,
-  "H": 500,
+  "W": 500,
+  "H": 70,
   "Font": {
     "FontPath": "./google_icons/fonts/Ubuntu-n1M0.ttf",
-    "Size":32 
+    "Size":16 
   },
   "PlaceItems": "space-between",
-  "Direction":  "vertical",
+  "Direction":  "horizontal",
   "Background": {
     "Type": "color-interpolation",
     "Values":{
@@ -64,6 +64,16 @@
         "label": "Menu",
         "imgPath": "./google_icons/apps.png",
         "action": "rofi -no-config -no-lazy-grab -show drun -modi drun"
+      }
+    },
+    {
+      "ObjType": "outputer",
+      "W": 52,
+      "H": 32,
+      "Values": {
+        "fontPath": "./google_icons/fonts/Ubuntu-n1M0.ttf",
+        "repetitive": "true",
+        "action": "date +%I:%M:%S%P" 
       }
     }
   ]

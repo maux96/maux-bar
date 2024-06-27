@@ -94,6 +94,8 @@ func objectCreator(objectData *bar_items.RawBarObjectData) (bar_items.BarElement
 	case "button":
 		actionFunc := createExecuter(strings.Split(objectData.Values["action"], " "))
 		return bar_items.NewButton(objectData.W, objectData.H, objectData.Values, actionFunc), nil
+	case "outputer":
+		return bar_items.NewOutputer(objectData.W, objectData.H, objectData.Values), nil
 	}
 	return nil, errors.New("object type not found")
 }

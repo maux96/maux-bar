@@ -42,19 +42,21 @@ func NewButton(W, H int32, values map[string]string, action func(ctx *BarContext
 	return &but
 }
 
-func (butt *Button) Draw(surf *sdl.Surface, bar *BarContext) {
+func (butt *Button) Draw(rend *sdl.Renderer, bar *BarContext) {
 	if butt == bar.HoveredItem {
 		butt.imgAsSurface.SetAlphaMod(126)
 	} else {
 		butt.imgAsSurface.SetAlphaMod(255)
 	}
 
-	butt.imgAsSurface.BlitScaled(nil, surf, &sdl.Rect{
-		X: butt.X,
-		Y: butt.Y,
-		W: int32(butt.W),
-		H: int32(butt.H),
-	})
+	imgTexture, err := rend.CreateTextureFromSurface(butt.imgAsSurface)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	defer imgTexture.Destroy()
+
+	rend.Copy(imgTexture, nil, &sdl.Rect{X: butt.X, Y: butt.Y, W: butt.W, H: butt.H})
 }
 
 func (butt *Button) SetPosition(x, y int32) {

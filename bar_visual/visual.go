@@ -25,10 +25,10 @@ func FindIntersectItem(rect *sdl.Rect, items []bar_items.BarElement) bar_items.B
 	return nil
 }
 
-func DrawItems(surface *sdl.Surface, items []bar_items.BarElement, barCtx *bar_items.BarContext) {
+func DrawItems(rend *sdl.Renderer, items []bar_items.BarElement, barCtx *bar_items.BarContext) {
 	for i := range items {
 		var item bar_items.Draweable = items[i]
-		item.Draw(surface, barCtx)
+		item.Draw(rend, barCtx)
 	}
 }
 
@@ -103,14 +103,15 @@ func StartBar(bar *bar_items.BarContext) {
 		panic(err)
 	}
 
-	surf, err := window.GetSurface()
+	rend, err := sdl.CreateRenderer(bar.Window, -1, sdl.RENDERER_ACCELERATED)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err.Error())
 	}
+	defer rend.Destroy()
 
 	SetItemsPlacement(
 		bar.Config.PlaceItems,
-		sdl.Rect{X: 0, Y: 0, W: surf.W, H: surf.H},
+		sdl.Rect{X: 0, Y: 0, W: bar.Config.W, H: bar.Config.H},
 		bar.Config.Direction,
 		bar.Elements,
 	)
@@ -119,17 +120,19 @@ func StartBar(bar *bar_items.BarContext) {
 
 	/* color selection in config file */
 	refreshBackgroundColor := GetBackgroundRefreshFunction(
-		surf,
+		rend,
 		bar.Config.Background,
 	)
 	for {
 		refreshBackgroundColor()
-		DrawItems(surf, bar.Elements, bar)
+		DrawItems(rend, bar.Elements, bar)
 
-		updateErr := window.UpdateSurface()
-		if updateErr != nil {
-			log.Println(updateErr.Error())
-		}
+		// updateErr := window.UpdateSurface()
+		// if updateErr != nil {
+		// 	log.Println(updateErr.Error())
+		// }
+
+		rend.Present()
 		sdl.Delay(100)
 	}
 }
@@ -143,7 +146,7 @@ func initTooltipCursorsFont(bar *bar_items.BarContext) (err error) {
 	if err != nil {
 		return err
 	}
-	bar.Font =  fontUsed
+	bar.Font = fontUsed
 
 	window, err := sdl.CreateWindow("maux_bar_tooltip", 1, 1, 70, 30, sdl.WINDOW_TOOLTIP|sdl.WINDOW_ALWAYS_ON_TOP|sdl.WINDOW_HIDDEN)
 	if err != nil {

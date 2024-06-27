@@ -44,7 +44,7 @@ func stringToColor(colAsString string) (col *sdl.Color, err error) {
 /*
 The returned function changes the background by interpolating the two selected colors with a step size of delta.
 */
-func GetBackgroundRefreshFunction(surf *sdl.Surface, config bar_items.BackgroundConfig) func() {
+func GetBackgroundRefreshFunction(rend *sdl.Renderer, config bar_items.BackgroundConfig) func() {
 	var (
 		col1  *sdl.Color
 		col2  *sdl.Color
@@ -88,6 +88,7 @@ func GetBackgroundRefreshFunction(surf *sdl.Surface, config bar_items.Background
 		} else {
 			step = nextStepValue
 		}
-		surf.FillRect(nil, sdl.MapRGBA(surf.Format, currentColor.R, currentColor.G, currentColor.B, currentColor.A))
+		rend.SetDrawColor(currentColor.R, currentColor.G, currentColor.B, currentColor.A)
+		rend.Clear()
 	}
 }

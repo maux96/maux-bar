@@ -8,7 +8,7 @@ type RawBarObjectData struct {
 	ObjType string
 	W       int32
 	H       int32
-	Values  map[string]string
+	Values  map[string]any
 }
 
 type BarElement interface {

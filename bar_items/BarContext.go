@@ -11,7 +11,7 @@ type BarContext struct {
 	HoveredItem    BarElement
 	Window         *sdl.Window
 	TooltipWindows *sdl.Window
-	Font		   *ttf.Font
+	Font           *ttf.Font
 	Elements       []BarElement
 }
 
@@ -33,17 +33,17 @@ type BarConfigData struct {
 	Direction  BarDirection
 	Objects    []RawBarObjectData
 	Background BackgroundConfig
-	Font	   FontConfig
+	Font       FontConfig
 }
 
-type FontConfig struct { 
+type FontConfig struct {
 	FontPath string
-	Size int 
-} 
+	Size     int
+}
 
 type BackgroundConfig struct {
 	Type   string
-	Values map[string]string
+	Values map[string]any
 }
 
 func NewBarContext() *BarContext {

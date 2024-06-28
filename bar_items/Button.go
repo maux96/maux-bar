@@ -14,7 +14,7 @@ type Button struct {
 	action       func(ctx *BarContext)
 }
 
-func NewButton(W, H int32, values map[string]string, action func(ctx *BarContext)) *Button {
+func NewButton(W, H int32, values map[string]any, action func(ctx *BarContext)) *Button {
 	but := Button{
 		Rect: sdl.Rect{
 			W: W,
@@ -24,19 +24,23 @@ func NewButton(W, H int32, values map[string]string, action func(ctx *BarContext
 		action:       action,
 	}
 
-	if imgPath, ok := values["imgPath"]; ok {
-		rw := sdl.RWFromFile(imgPath, "r")
-		img, err := sdlImg.LoadPNGRW(rw)
-		if err != nil {
-			log.Printf("Error loading the button Image (%s)\n", err.Error())
+	if data, ok := values["imgPath"]; ok {
+		if imgPath, isString := data.(string); isString {
+			rw := sdl.RWFromFile(imgPath, "r")
+			img, err := sdlImg.LoadPNGRW(rw)
+			if err != nil {
+				log.Printf("Error loading the button Image (%s)\n", err.Error())
+			}
+			but.imgAsSurface = img
 		}
-		but.imgAsSurface = img
 	} else {
 		panic("no imagePath in button")
 	}
 
-	if label, ok := values["label"]; ok {
-		but.Label = label
+	if data, ok := values["label"]; ok {
+		if label, isString := data.(string); isString {
+			but.Label = label
+		}
 	}
 
 	return &but

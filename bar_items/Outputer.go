@@ -3,11 +3,11 @@ package bar_items
 import (
 	"io"
 	"log"
+	"maux_bar/utils"
 	"os/exec"
 	"strings"
 	"time"
 
-	//sdlImg "github.com/veandco/go-sdl2/img"
 	sdl "github.com/veandco/go-sdl2/sdl"
 )
 
@@ -15,9 +15,10 @@ type Outputer struct {
 	sdl.Rect
 	output    <-chan string
 	lastPrint string
+	// font      *ttf.Font
 }
 
-func NewOutputer(W, H int32, values map[string]string) *Outputer {
+func NewOutputer(W, H int32, values map[string]any) *Outputer {
 	but := Outputer{
 		Rect: sdl.Rect{
 			W: W,
@@ -26,14 +27,22 @@ func NewOutputer(W, H int32, values map[string]string) *Outputer {
 		lastPrint: "-",
 	}
 
+	/* if fontPath, ok := values["font"]; ok {
+	} else {
+		log.Println("font not found in outputer")
+	} */
+
 	if action, ok := values["action"]; ok {
-		repet, ok0 := values["repetitive"]
 		isRepetitive := false
-		/* TODO change this  */
-		if ok0 && repet == "true" {
-			isRepetitive = true
+		repet, ok0 := values["repetitive"]
+		if ok0 {
+			isRepetitive = repet.(bool)
 		}
-		ch, err := executeCommand(action, isRepetitive)
+		commandArgs, err := utils.ConvertSliceTo[string](action.([]any))
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+		ch, err := executeCommand(commandArgs, isRepetitive)
 		if err != nil {
 			log.Fatalln(err.Error())
 		} else {
@@ -99,8 +108,7 @@ func (butt *Outputer) Action(ctx *BarContext) {
 	// butt.action(ctx)
 }
 
-func executeCommand(action string, inRepetition bool) (out chan string, err error) {
-	commSplited := strings.Split(action, " ")
+func executeCommand(commSplited []string, inRepetition bool) (out chan string, err error) {
 	outChan := make(chan string)
 
 	if inRepetition {

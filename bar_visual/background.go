@@ -53,23 +53,23 @@ func GetBackgroundRefreshFunction(rend *sdl.Renderer, config bar_items.Backgroun
 		sign = 1.0
 		step = 0.0 // go from 0 to 1
 	)
-	var errCol1, errCol2, errDelta error
+	var errCol1, errCol2 error
 	if colAsString, ok := config.Values["col1"]; ok {
-		col1, errCol1 = stringToColor(colAsString)
+		col1, errCol1 = stringToColor(colAsString.(string))
 	} else {
 		col1 = &sdl.Color{R: 200, G: 30, B: 126, A: 255}
 	}
 	if colAsString, ok := config.Values["col2"]; ok {
-		col2, errCol2 = stringToColor(colAsString)
+		col2, errCol2 = stringToColor(colAsString.(string))
 	} else {
 		col2 = &sdl.Color{R: 30, G: 126, B: 200, A: 255}
 	}
-	if deltaAsString, ok := config.Values["delta"]; ok {
-		delta, errDelta = strconv.ParseFloat(deltaAsString, 64)
+	if data, ok := config.Values["delta"]; ok {
+		delta = data.(float64)
 	} else {
 		delta = 0.05
 	}
-	err := errors.Join(errCol1, errCol2, errDelta)
+	err := errors.Join(errCol1, errCol2)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}

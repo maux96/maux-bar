@@ -1,8 +1,8 @@
 package main
 
 import (
-	"log"
 	"flag"
+	"log"
 
 	"maux_bar/bar_items"
 	"maux_bar/bar_visual"
@@ -12,7 +12,7 @@ import (
 func main() {
 	flag.Parse()
 
-	var configFilePath string 
+	var configFilePath string
 	if flag.NArg() == 0 {
 		log.Fatalln("JSON config file needed as first argument.")
 	} else {

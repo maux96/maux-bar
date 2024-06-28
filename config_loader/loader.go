@@ -6,9 +6,9 @@ import (
 	"io"
 	"log"
 	"maux_bar/bar_items"
+	"maux_bar/utils"
 	"os"
 	"os/exec"
-	"strings"
 	"syscall"
 
 	"github.com/veandco/go-sdl2/sdl"
@@ -19,7 +19,7 @@ func SetDefaultValues(bar *bar_items.BarContext) {
 		bar.Config = &bar_items.BarConfigData{
 			Background: bar_items.BackgroundConfig{
 				Type:   "color-interpolation",
-				Values: map[string]string{},
+				Values: map[string]any{},
 			},
 			Font: bar_items.FontConfig{
 				// TODO default FontPath
@@ -32,7 +32,7 @@ func SetDefaultValues(bar *bar_items.BarContext) {
 	}
 
 	if bar.Config.Background.Values == nil {
-		bar.Config.Background.Values = make(map[string]string)
+		bar.Config.Background.Values = make(map[string]any)
 	}
 
 	mode, err := sdl.GetDesktopDisplayMode(0)
@@ -92,7 +92,11 @@ func PrepareBar(bar *bar_items.BarContext, fileName string) (err error) {
 func objectCreator(objectData *bar_items.RawBarObjectData) (bar_items.BarElement, error) {
 	switch objectData.ObjType {
 	case "button":
-		actionFunc := createExecuter(strings.Split(objectData.Values["action"], " "))
+		commandArgs, err := utils.ConvertSliceTo[string](objectData.Values["action"].([]any))
+		if err != nil {
+			return nil, err
+		}
+		actionFunc := createExecuter(commandArgs)
 		return bar_items.NewButton(objectData.W, objectData.H, objectData.Values, actionFunc), nil
 	case "outputer":
 		return bar_items.NewOutputer(objectData.W, objectData.H, objectData.Values), nil

@@ -17,6 +17,7 @@ type Outputer struct {
 	output    <-chan string
 	lastPrint string
 	font      *ttf.Font
+	fontColor *sdl.Color
 }
 
 func NewOutputer(W, H int32, values map[string]any) *Outputer {
@@ -40,6 +41,21 @@ func NewOutputer(W, H int32, values map[string]any) *Outputer {
 		but.font = fontUsed
 	} else {
 		log.Println("font not found in outputer")
+	}
+
+	if data, ok := values["fontColor"]; ok {
+		colValues, err := utils.ConvertSliceTo[float64](data.([]any))
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+		but.fontColor = &sdl.Color{
+			R: uint8(colValues[0]),
+			G: uint8(colValues[1]),
+			B: uint8(colValues[2]),
+			A: uint8(colValues[3]),
+		}
+	} else {
+		but.fontColor = &sdl.Color{R: 200, G: 200, B: 200, A: 200}
 	}
 
 	if action, ok := values["action"]; ok {
@@ -82,7 +98,7 @@ func (butt *Outputer) Draw(rend *sdl.Renderer, bar *BarContext) {
 		usedFont = bar.Font
 	}
 
-	fontSurf, err := usedFont.RenderUTF8Solid(textToPrint, sdl.Color{R: 200, G: 200, B: 200, A: 200})
+	fontSurf, err := usedFont.RenderUTF8Solid(textToPrint, *butt.fontColor)
 	if err != nil {
 		log.Println(err.Error())
 		return

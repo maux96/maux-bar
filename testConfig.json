@@ -73,6 +73,7 @@
       "Values": {
         "fontPath": "./google_icons/fonts/Ubuntu-n1M0.ttf",
         "fontSize": 64,
+        "fontColor": [255,255,255,255],
         "repetitive": true,
         "action": ["date", "+%I:%M:%S%P"] 
       }

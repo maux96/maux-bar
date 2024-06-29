@@ -9,13 +9,14 @@ import (
 	"time"
 
 	sdl "github.com/veandco/go-sdl2/sdl"
+	"github.com/veandco/go-sdl2/ttf"
 )
 
 type Outputer struct {
 	sdl.Rect
 	output    <-chan string
 	lastPrint string
-	// font      *ttf.Font
+	font      *ttf.Font
 }
 
 func NewOutputer(W, H int32, values map[string]any) *Outputer {
@@ -27,10 +28,19 @@ func NewOutputer(W, H int32, values map[string]any) *Outputer {
 		lastPrint: "-",
 	}
 
-	/* if fontPath, ok := values["font"]; ok {
+	if fontPath, ok := values["fontPath"]; ok {
+		var fontSize float64 = 16
+		if data, ok0 := values["fontSize"]; ok0 {
+			fontSize = data.(float64)
+		}
+		fontUsed, err := ttf.OpenFont(fontPath.(string), int(fontSize))
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+		but.font = fontUsed
 	} else {
 		log.Println("font not found in outputer")
-	} */
+	}
 
 	if action, ok := values["action"]; ok {
 		isRepetitive := false
@@ -65,7 +75,14 @@ func (butt *Outputer) Draw(rend *sdl.Renderer, bar *BarContext) {
 		textToPrint = butt.lastPrint
 	}
 
-	fontSurf, err := bar.Font.RenderUTF8Solid(textToPrint, sdl.Color{R: 200, G: 200, B: 200, A: 200})
+	var usedFont *ttf.Font
+	if butt.font != nil {
+		usedFont = butt.font
+	} else {
+		usedFont = bar.Font
+	}
+
+	fontSurf, err := usedFont.RenderUTF8Solid(textToPrint, sdl.Color{R: 200, G: 200, B: 200, A: 200})
 	if err != nil {
 		log.Println(err.Error())
 		return

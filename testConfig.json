@@ -1,12 +1,12 @@
 {
-  "W": 500,
-  "H": 70,
+  "W": 50,
+  "H": 500,
   "Font": {
     "FontPath": "./google_icons/fonts/Ubuntu-n1M0.ttf",
     "Size": 16 
   },
   "PlaceItems": "space-between",
-  "Direction":  "horizontal",
+  "Direction":  "vertical",
   "Background": {
     "Type": "color-interpolation",
     "Values":{
@@ -68,10 +68,11 @@
     },
     {
       "ObjType": "outputer",
-      "W": 52,
-      "H": 32,
+      "W": 48,
+      "H": 21,
       "Values": {
         "fontPath": "./google_icons/fonts/Ubuntu-n1M0.ttf",
+        "fontSize": 64,
         "repetitive": true,
         "action": ["date", "+%I:%M:%S%P"] 
       }

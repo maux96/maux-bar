@@ -19,14 +19,14 @@ func main() {
 		configFilePath = flag.Arg(0)
 	}
 
+	QuitFunction := bar_visual.InitEverythingSDL()
+	defer QuitFunction()
+
 	bar := bar_items.NewBarContext()
 	err := config_loader.PrepareBar(bar, configFilePath)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-
-	QuitFunction := bar_visual.InitEverythingSDL()
-	defer QuitFunction()
 
 	config_loader.SetDefaultValues(bar)
 

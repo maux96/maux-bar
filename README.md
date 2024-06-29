@@ -1,3 +1,10 @@
+# MAUX-BAR
+
+Simple toolbar written in golang.
+
+Must be configured with a json like
+
+```json
 {
   "W": 500,
   "H": 50,
@@ -80,3 +87,16 @@
     }
   ]
 }
+
+```
+
+To compile 
+```bash
+go build -o mauxbar
+```
+To start
+```bash
+./mauxbar testConfig.json
+```
+
+![alt text](testImg.jpg)
